@@ -8,14 +8,14 @@ router.get('/photos', (req, res) => {
     { id: 1, photo: 'https://random.imagecdn.app/500/150' },
     { id: 2, photo: 'https://random.imagecdn.app/500/150' }
   ]
-  res.send(photos)
+  res.json(photos)
 })
 
 //create /photos/1
 router.get('/photos/1', (req, res) => {
   const photos1 = { id: 1, photo: 'https://random.imagecdn.app/500/150' }
 
-  res.send(photos1)
+  res.json(photos1)
 })
 
 // Export the router
