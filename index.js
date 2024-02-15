@@ -6,6 +6,8 @@ import reviewsRouter from './routes/reviewsRoutes.js'
 app.use(reviewsRouter)
 import bookingsRouter from './routes/bookingsRoutes.js'
 app.use(bookingsRouter)
+import photosRouter from './routes/photos.js'
+app.use(photosRouter)
 
 // Tell the app to use the user router
 app.listen(4100, () => {
