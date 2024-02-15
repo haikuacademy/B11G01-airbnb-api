@@ -10,6 +10,5 @@ router.get('/photos', (req, res) => {
   ]
   res.send(photos)
 })
-
 // Export the router
 export default router
