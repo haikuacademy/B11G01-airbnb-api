@@ -7,13 +7,13 @@ router.get('/users', (req, res) => {
     { id: 2, firstName: 'Bob' }
   ]
   console.log(users)
-  res.send(users)
+  res.json(users)
 })
 
 router.get('/users/1', (req, res) => {
   const users = { id: 1, firstName: 'Alice' }
   console.log(users)
-  res.send(users)
+  res.json(users)
 })
 
 

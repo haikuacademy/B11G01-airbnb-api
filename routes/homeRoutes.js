@@ -7,13 +7,13 @@ router.get('/home', (req, res) => {
     { id: 2, homeName: 'Krabi' }
   ]
   console.log(home)
-  res.send(home)
+  res.json(home)
 })
 
 router.get('/home/1', (req, res) => {
   const home = { id: 1, homeName: 'Bali' }
   console.log(home)
-  res.send(home)
+  res.json(home)
 })
 
 export default router
