@@ -1,10 +1,11 @@
 import express from 'express'
+
+import photosRouter from './routes/photosRoutes.js'
+import authRouter from './routes/authRoutes.js'
+
 const app = express()
 
-// Import the photos router module
-import photosRouter from './routes/photosRoutes.js'
-
-// Tell the app to use the photos router
+app.use(authRouter)
 app.use(photosRouter)
 
 app.listen(4100, () => {
