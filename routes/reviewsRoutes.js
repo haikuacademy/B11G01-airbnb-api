@@ -8,7 +8,7 @@ router.get('/reviews', (req, res) => {
     { house_id: 1, name: 'House A' },
     { house_id: 2, name: 'House B' }
   ]
-  res.json('reviews')
+  res.json(reviews)
   console.log({ house_id: 1, name: 'House A' })
 })
 export default router
