@@ -1,16 +1,20 @@
-// import express
-import express from 'express'
-// run the express function
-const app = express()
-// create routes
-app.get('/users', (req, res) => {
+import { Router } from 'express'
+const router = Router()
+
+router.get('/users', (req, res) => {
   const users = [
     { id: 1, firstName: 'Alice' },
     { id: 2, firstName: 'Bob' }
   ]
+  console.log(users)
   res.send(users)
 })
-app.get('/users/1', (req, res) => {
+
+router.get('/users/1', (req, res) => {
   const users = { id: 1, firstName: 'Alice' }
+  console.log(users)
   res.send(users)
 })
+
+
+export default router
