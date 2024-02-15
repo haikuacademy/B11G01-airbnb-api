@@ -10,5 +10,13 @@ router.get('/photos', (req, res) => {
   ]
   res.send(photos)
 })
+
+//create /photos/1
+router.get('/photos/1', (req, res) => {
+  const photos1 = { id: 1, photo: 'https://random.imagecdn.app/500/150' }
+
+  res.send(photos1)
+})
+
 // Export the router
 export default router
