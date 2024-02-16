@@ -1,14 +1,17 @@
 import { Router } from 'express'
 const router = Router()
+import db from '../db.js' // import the database connection
 
-// create route reviews
-
-router.get('/bookings', (req, res) => {
-  const bookings = [
-    { house_id: 1, name: 'House A', price: 100 },
-    { house_id: 2, name: 'House B', price: 150 }
-  ]
-  res.json(bookings)
-  console.log({ house_id: 1, name: 'House B', price: 100 })
+router.get('/bookings', async (req, res) => {
+  // don't forget async
+  try {
+    const { rows } = await db.query('SELECT * FROM bookings') // query the database
+    console.log(rows)
+    res.json(rows) // respond with the data
+  } catch (err) {
+    console.error(err.message)
+    res.json(err)
+  }
 })
+
 export default router
