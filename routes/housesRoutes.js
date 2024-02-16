@@ -2,7 +2,7 @@ import { Router } from 'express'
 const router = Router()
 import db from '../db.js' // import the database connection
 
-router.get('/home', async (req, res) => {
+router.get('/houses', async (req, res) => {
   try {
     const { rows } = await db.query('SELECT * FROM houses') // query the database
     console.log(rows)
@@ -14,7 +14,7 @@ router.get('/home', async (req, res) => {
 })
 
 // Define a GET route for fetching a single user
-router.get('/home/1', async (req, res) => {
+router.get('/houses/1', async (req, res) => {
   try {
     const { rows } = await db.query(
       'SELECT * FROM houses WHERE houses.house_ID = 1'

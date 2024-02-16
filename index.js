@@ -5,7 +5,7 @@ import express from 'express'
 
 import photosRouter from './routes/photosRoutes.js'
 import authRouter from './routes/authRoutes.js'
-import homeRouter from './routes/homeRoutes.js'
+import housesRouter from './routes/housesRoutes.js'
 import usersRouter from './routes/usersRoutes.js'
 import bookingsRouter from './routes/bookingsRoutes.js'
 import reviewsRouter from './routes/reviewsRoutes.js'
@@ -16,7 +16,7 @@ app.use(reviewsRouter)
 app.use(bookingsRouter)
 app.use(authRouter)
 app.use(photosRouter)
-app.use(homeRouter)
+app.use(housesRouter)
 app.use(usersRouter)
 
 
