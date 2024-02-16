@@ -1,21 +1,28 @@
 import { Router } from 'express'
-  
 const router = Router()
+import db from '../db.js' // import the database connection
 
-router.get('/users', (req, res) => {
-  const users = [
-    { id: 1, firstName: 'Alice' },
-    { id: 2, firstName: 'Bob' }
-  ]
-  console.log(users)
-  res.json(users)
+router.get('/users', async (req, res) => {
+  try {
+    const { rows } = await db.query('SELECT * FROM users') // query the database
+    console.log(rows)
+    res.json(rows) // respond with the data
+  } catch (err) {
+    console.error(err.message)
+    res.json(err)
+  }
 })
 
-router.get('/users/1', (req, res) => {
-  const users = { id: 1, firstName: 'Alice' }
-  console.log(users)
-  res.json(users)
+// Define a GET route for fetching a single user
+router.get('/users/1', async (req, res) => {
+  try {
+    const { rows } = await db.query('SELECT * FROM users WHERE users.user_id = 1') // query the database
+    console.log(rows)
+    res.json(rows) // respond with the data
+  } catch (err) {
+    console.error(err.message)
+    res.json(err)
+  }
 })
-
 
 export default router
