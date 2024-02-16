@@ -1,22 +1,32 @@
 // import router
 import { Router } from 'express'
 const router = Router()
+import db from '../db.js' // import the database connection
 
 // create photos routes
-router.get('/photos', (req, res) => {
-  const photos = [
-    { id: 1, photo: 'https://random.imagecdn.app/500/150' },
-    { id: 2, photo: 'https://random.imagecdn.app/500/150' }
-  ]
-  res.json(photos)
+router.get('/photos', async (req, res) => {
+  try {
+    const { rows } = await db.query('SELECT * FROM pictures') // query the database
+    console.log(rows)
+    res.json(rows) // respond with the data
+  } catch (err) {
+    console.error(err.message)
+    res.json(err)
+  }
 })
 
 //create /photos/1
-router.get('/photos/1', (req, res) => {
-  const photos1 = { id: 1, photo: 'https://random.imagecdn.app/500/150' }
-
-  res.json(photos1)
+router.get('/photos/11', async (req, res) => {
+  try {
+    const { rows } = await db.query(
+      'SELECT * FROM pictures WHERE picture_id = 11'
+    ) // query the database
+    console.log(rows)
+    res.json(rows) // respond with the data
+  } catch (err) {
+    console.error(err.message)
+    res.json(err)
+  }
 })
 
-// Export the router
 export default router
