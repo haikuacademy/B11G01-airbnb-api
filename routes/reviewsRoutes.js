@@ -14,10 +14,17 @@ router.get('/reviews', async (req, res) => {
   }
 })
 
-router.get('/reviews/1', async (req, res) => {
+// Define a GET route  with params.
+
+router.get('/reviews/:reviewId', async (req, res) => {
   // don't forget async
   try {
-    const { rows } = await db.query('SELECT * FROM reviews WHERE review_id = 1') // query the database
+    const { rows } = await db.query(
+      `SELECT * FROM reviews WHERE review_id = ${req.params.reviewId}`
+    ) // query the database
+    if (rows.length === 0) {
+      return res.json({ error: 'Review not found' })
+    }
     console.log(rows)
     res.json(rows) // respond with the data
   } catch (err) {
@@ -25,5 +32,4 @@ router.get('/reviews/1', async (req, res) => {
     res.json(err)
   }
 })
-
 export default router
