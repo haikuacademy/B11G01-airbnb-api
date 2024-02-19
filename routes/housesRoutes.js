@@ -13,17 +13,19 @@ router.get('/houses', async (req, res) => {
   }
 })
 
-// Define a GET route for fetching a single user
-router.get('/houses/1', async (req, res) => {
+// Define a GET route for fetching a single house
+router.get('/houses/:houseId', async (req, res) => {
   try {
     const { rows } = await db.query(
-      'SELECT * FROM houses WHERE houses.house_ID = 1'
-    ) // query the database
-    console.log(rows)
-    res.json(rows) // respond with the data
+      `SELECT * FROM houses WHERE house_id = ${req.params.houseId}`
+    )
+    if (rows.length === 0) {
+      return res.json({ error: 'House not found' })
+    }
+    res.json(rows)
   } catch (err) {
     console.error(err.message)
-    res.json(err)
+    res.json({ error: 'Internal server error' })
   }
 })
 
