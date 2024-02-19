@@ -23,9 +23,16 @@ router.get('/houses', async (req, res) => {
   try {
     //query for houses
     let queryString = 'SELECT * FROM houses'
+    if (!req.query.location) {
+      queryString
+    }
     //query for location
     if (req.query.location) {
       queryString += ` WHERE location = '${req.query.location}'`
+    }
+    //query for max price
+    if (req.query.max_price) {
+      queryString += ` AND price_per_night <= '${req.query.max_price}'`
     }
     const { rows } = await db.query(queryString)
     res.json(rows)
