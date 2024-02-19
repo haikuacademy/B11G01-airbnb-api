@@ -17,10 +17,18 @@ router.get('/photos', async (req, res) => {
 
 //Params for GET /photos/11
 router.get('/photos/:photoId', async (req, res) => {
-  const { rows } = await db.query(
-    `SELECT * FROM pictures WHERE picture_id = ${req.params.photoId}`
-  )
-  res.json(rows)
+  try {
+    const { rows } = await db.query(
+      `SELECT * FROM pictures WHERE picture_id = ${req.params.photoId}`
+    )
+    if (rows.length === 0) {
+      return res.json({ error: 'Photo not found' })
+    }
+    res.json(rows)
+  } catch (err) {
+    console.error(err.message)
+    res.json(err)
+  }
 })
 
 //create /photos/11
