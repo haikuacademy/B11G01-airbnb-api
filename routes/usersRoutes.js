@@ -2,6 +2,7 @@ import { Router } from 'express'
 const router = Router()
 import db from '../db.js' // import the database connection
 
+// Define a GET route for fetching the list of users
 router.get('/users', async (req, res) => {
   try {
     const { rows } = await db.query('SELECT * FROM users') // query the database
@@ -14,14 +15,18 @@ router.get('/users', async (req, res) => {
 })
 
 // Define a GET route for fetching a single user
-router.get('/users/1', async (req, res) => {
+router.get('/users/:userId', async (req, res) => {
   try {
-    const { rows } = await db.query('SELECT * FROM users WHERE users.user_id = 1') // query the database
-    console.log(rows)
-    res.json(rows) // respond with the data
+    const { rows } = await db.query(
+      `SELECT * FROM users WHERE user_id = ${req.params.userId}`
+    )
+    if (rows.length === 0) {
+      return res.json({ error: 'User not found' })
+    }
+    res.json(rows)
   } catch (err) {
     console.error(err.message)
-    res.json(err)
+    res.json({ error: 'Internal server error' })
   }
 })
 
