@@ -18,16 +18,20 @@ router.get('/photos', async (req, res) => {
 //Params for GET /photos/11
 router.get('/photos/:photoId', async (req, res) => {
   try {
+    let photoId = Number(req.params.photoId)
+    if (!photoId) {
+      throw new Error('Please insert a number')
+    }
     const { rows } = await db.query(
       `SELECT * FROM pictures WHERE picture_id = ${req.params.photoId}`
     )
     if (rows.length === 0) {
-      return res.json({ error: 'Photo not found' })
+      throw new Error('Photo not found')
     }
     res.json(rows)
   } catch (err) {
     console.error(err.message)
-    res.json({ error: 'Please insert a valid number' })
+    res.json(err.message)
   }
 })
 
