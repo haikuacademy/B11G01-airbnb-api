@@ -23,9 +23,6 @@ router.get('/houses', async (req, res) => {
   try {
     //query for houses with 1 = 1 to start with true condition
     let queryString = 'SELECT * FROM houses WHERE 1 = 1'
-    // if (!req.query.location) {
-    //   queryString
-    // }
     //query for location
     if (req.query.location) {
       queryString += ` AND location = '${req.query.location}'`
