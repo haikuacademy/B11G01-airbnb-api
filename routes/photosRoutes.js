@@ -27,7 +27,7 @@ router.get('/photos/:photoId', async (req, res) => {
     res.json(rows)
   } catch (err) {
     console.error(err.message)
-    res.json(err)
+    res.json({ error: 'Please insert a valid number' })
   }
 })
 
