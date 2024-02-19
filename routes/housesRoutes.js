@@ -34,6 +34,10 @@ router.get('/houses', async (req, res) => {
     if (req.query.max_price) {
       queryString += ` AND price_per_night <= '${req.query.max_price}'`
     }
+    //query for min rooms
+    if (req.query.min_rooms) {
+      queryString += ` AND bedrooms <= '${req.query.min_rooms}'`
+    }
     const { rows } = await db.query(queryString)
     res.json(rows)
   } catch (err) {
