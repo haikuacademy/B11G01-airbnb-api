@@ -30,7 +30,7 @@ router.get('/photos/:photoId', async (req, res) => {
       `SELECT * FROM pictures WHERE picture_id = ${req.params.photoId}`
     )
     if (rows.length === 0) {
-      throw new Error('Photo not found')
+      throw new Error(`No photo found with id ${req.params.photoId}`)
     }
     res.json(rows)
   } catch (err) {
