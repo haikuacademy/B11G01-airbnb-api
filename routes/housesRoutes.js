@@ -21,11 +21,11 @@ router.get('/houses/:houseId', async (req, res) => {
 //Update the /houses route with queries
 router.get('/houses', async (req, res) => {
   try {
-    //query for houses
-    let queryString = 'SELECT * FROM houses'
-    if (!req.query.location) {
-      queryString
-    }
+    //query for houses with 1 = 1 to start with true condition
+    let queryString = 'SELECT * FROM houses WHERE 1 = 1'
+    // if (!req.query.location) {
+    //   queryString
+    // }
     //query for location
     if (req.query.location) {
       queryString += ` WHERE location = '${req.query.location}'`
