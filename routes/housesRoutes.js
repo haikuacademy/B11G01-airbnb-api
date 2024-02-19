@@ -38,6 +38,10 @@ router.get('/houses', async (req, res) => {
     if (req.query.min_rooms) {
       queryString += ` AND bedrooms <= '${req.query.min_rooms}'`
     }
+    //query for search
+    if (req.query.search) {
+      queryString += ` AND description LIKE '%${req.query.search}%'`
+    }
     const { rows } = await db.query(queryString)
     res.json(rows)
   } catch (err) {
