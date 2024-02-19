@@ -29,7 +29,24 @@ router.get('/reviews/:reviewId', async (req, res) => {
     res.json(rows) // respond with the data
   } catch (err) {
     console.error(err.message)
-    res.json(err)
+    res.json({ error: 'Please insert a number' })
   }
 })
 export default router
+
+// // Define a GET route for fetching a single user
+// router.get(‘/users/:userId’, async (req, res) => {
+//   try {
+//     const { rows } = await db.query(
+//       `SELECT * FROM users WHERE user_id = ${req.params.userId}`
+//     )
+//     if (rows.length === 0) {
+//       return res.json({ error: ‘User not found’ })
+//     }
+//     res.json(rows)
+//   } catch (err) {
+//     console.error(err.message)
+//     res.json({ error: ‘Internal server error’ })
+//   }
+// })
+// export default router
