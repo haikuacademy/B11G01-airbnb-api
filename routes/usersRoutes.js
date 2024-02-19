@@ -14,19 +14,22 @@ router.get('/users', async (req, res) => {
   }
 })
 
-// Define a GET route for fetching a single user
 router.get('/users/:userId', async (req, res) => {
   try {
+    let userId = Number(req.params.userId)
+    if (!userId) {
+      throw new Error('Please insert a number')
+    }
     const { rows } = await db.query(
       `SELECT * FROM users WHERE user_id = ${req.params.userId}`
     )
     if (rows.length === 0) {
-      return res.json({ error: 'User not found' })
+      throw new Error('User not found')
     }
     res.json(rows)
   } catch (err) {
     console.error(err.message)
-    res.json({ error: 'Internal server error' })
+    res.json(err.message)
   }
 })
 
