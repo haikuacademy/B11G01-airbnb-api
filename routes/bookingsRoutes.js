@@ -2,19 +2,8 @@ import { Router } from 'express'
 const router = Router()
 import db from '../db.js' // import the database connection
 
-router.get('/bookings', async (req, res) => {
-  // don't forget async
-  try {
-    const { rows } = await db.query('SELECT * FROM bookings') // query the database
-    console.log(rows)
-    res.json(rows) // respond with the data
-  } catch (err) {
-    console.error(err.message)
-    res.json(err)
-  }
-})
-
 // params for GET bookings/1
+
 router.get('/bookings/:bookingId', async (req, res) => {
   try {
     let bookingId = Number(req.params.bookingId)
@@ -34,18 +23,27 @@ router.get('/bookings/:bookingId', async (req, res) => {
   }
 })
 
-// router.get('/bookings/11', async (req, res) => {
-//   // don't forget async
-//   try {
-//     const { rows } = await db.query(
-//       'SELECT * FROM bookings WHERE booking_id = 11'
-//     ) // query the database
-//     console.log(rows)
-//     res.json(rows) // respond with the data
-//   } catch (err) {
-//     console.error(err.message)
-//     res.json(err)
-//   }
-// })
+//Update the /bookings route with queries
+
+router.get('/bookings', async (req, res) => {
+  try {
+    let ale = 'SELECT * FROM bookings ORDER BY booking_start_date DESC'
+    if (req.query.user) {
+      ale = `SELECT * FROM bookings WHERE user_id = ${req.query.user} ORDER BY booking_start_date DESC`
+    }
+    const { rows } = await db.query(ale)
+    res.json(rows)
+  } catch (err) {
+    console.error(err.message)
+    res.json(err)
+  }
+})
 
 export default router
+
+// Similarly, update the /bookings route so that, by default and without any URL query, it responds with the list of bookings
+// sorted by latest "start date"("from", or "from_date" depending on the database column name) in descending order.
+
+// Update the /bookings route so that, if a user property is added to the request query, it should only return bookings that belong to (made by) that user, such as:
+
+// /bookings?user=1
