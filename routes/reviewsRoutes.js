@@ -13,7 +13,7 @@ router.get('/reviews/:reviewId', async (req, res) => {
       `SELECT * FROM reviews WHERE review_id = ${req.params.reviewId}`
     )
     if (rows.length === 0) {
-      throw new Error('Review not found')
+      throw new Error(`No review found with id ${req.params.reviewId}`)
     }
     console.log(rows)
     res.json(rows)
