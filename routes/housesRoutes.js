@@ -13,7 +13,7 @@ router.get('/houses/:houseId', async (req, res) => {
       `SELECT * FROM houses WHERE house_id = ${req.params.houseId}`
     )
     if (rows.length === 0) {
-      throw new Error('House not found')
+      throw new Error(`No house found with id ${req.params.houseId}`)
     }
     res.json(rows)
   } catch (err) {
@@ -43,13 +43,13 @@ router.get('/houses', async (req, res) => {
     if (req.query.search) {
       queryString += ` AND description LIKE '%${req.query.search}%'`
     }
-    //query for sort and order by price
-    if (req.query.sort === 'price') {
-      queryString += ` ORDER BY price_per_night ${req.query.order}`
+    //query for sort
+    if (req.query.sort) {
+      queryString += ` ORDER BY ${req.query.sort}`
     }
-    //query for sort and order by bedrooms
-    if (req.query.sort === 'bedrooms') {
-      queryString += ` ORDER BY bedrooms ${req.query.order}`
+    //query for sort and order by
+    if (req.query.order) {
+      queryString += ` ${req.query.order}`
     }
     const { rows } = await db.query(queryString)
     res.json(rows)
