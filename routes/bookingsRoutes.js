@@ -27,11 +27,12 @@ router.get('/bookings/:bookingId', async (req, res) => {
 
 router.get('/bookings', async (req, res) => {
   try {
-    let ale = 'SELECT * FROM bookings ORDER BY booking_start_date DESC'
+    let queryBookings =
+      'SELECT * FROM bookings ORDER BY booking_start_date DESC'
     if (req.query.user) {
-      ale = `SELECT * FROM bookings WHERE user_id = ${req.query.user} ORDER BY booking_start_date DESC`
+      queryBookings = `SELECT * FROM bookings WHERE user_id = ${req.query.user} ORDER BY booking_start_date DESC`
     }
-    const { rows } = await db.query(ale)
+    const { rows } = await db.query(queryBookings)
     res.json(rows)
   } catch (err) {
     console.error(err.message)
