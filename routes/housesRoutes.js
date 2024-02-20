@@ -39,13 +39,13 @@ router.get('/houses', async (req, res) => {
     if (req.query.search) {
       queryString += ` AND description LIKE '%${req.query.search}%'`
     }
-    //query for sort by price
-    if (req.query.sort === 'price' || req.query.order === 'asc') {
-      queryString += ` ORDER BY price_per_night`
+    //query for sort and order by price
+    if (req.query.sort === 'price') {
+      queryString += ` ORDER BY price_per_night ${req.query.order}`
     }
-    //query for order by asc or desc
-    if (req.query.order === 'desc') {
-      queryString += ` ORDER BY price_per_night DESC`
+    //query for sort and order by bedrooms
+    if (req.query.sort === 'bedrooms') {
+      queryString += ` ORDER BY bedrooms ${req.query.order}`
     }
     const { rows } = await db.query(queryString)
     res.json(rows)
