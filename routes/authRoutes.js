@@ -1,10 +1,24 @@
 import { Router } from 'express'
 const router = Router()
+import db from '../db.js' // import the database connection
 
 //authRoutes for /signup
-router.get('/signup', (req, res) => {
-  let signUpMessage = 'This is from Signup'
-  res.send(signUpMessage)
+router.post('/signup', async (req, res) => {
+  try {
+    const { first_name, last_name, email, password } = req.body
+    console.log(req.body, first_name, last_name)
+    const queryString = `
+      INSERT INTO users (first_name, last_name, email, password)
+      VALUES ('${first_name}', '${last_name}', '${email}', '${password}')
+      RETURNING *
+    `
+    console.log(queryString)
+    const { rows } = await db.query(queryString)
+    res.json(rows)
+  } catch (err) {
+    console.error(err.message)
+    res.json(err)
+  }
 })
 
 //authRoutes for /login
