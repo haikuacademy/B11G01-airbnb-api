@@ -13,7 +13,7 @@ router.get('/houses/:houseId', async (req, res) => {
       `SELECT * FROM houses WHERE house_id = ${req.params.houseId}`
     )
     if (rows.length === 0) {
-      throw new Error('House not found')
+      throw new Error(`No house found with id ${req.params.houseId}`)
     }
     res.json(rows)
   } catch (err) {
