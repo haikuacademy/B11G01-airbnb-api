@@ -2,6 +2,39 @@ import { Router } from 'express'
 const router = Router()
 import db from '../db.js' // import the database connection
 
+// Houses
+// Let's continue with the "houses" route.
+// In the housesRoutes.js file, create a new POST route for /houses
+// It is common practice to add the POST route above the GET routes, in order to follow the CRUD sequence of operations (Create, Read, Update, Delete).
+// Make the new POST route insert a row in the houses table of the database using the data that comes from the req.body.
+// Make the route respond with the row of data inserted into the database.
+// Test, using Postman, that a POST request to http://localhost:4100/houses with a payload, results in the correct insertion of such data in the database.
+
+router.post('/houses', async (req, res) => {
+  try {
+    const {
+      location,
+      bedrooms,
+      bathrooms,
+      description,
+      price_per_night,
+      host_id
+    } = req.body
+    console.log(req.body, location, bedrooms)
+    const queryString = `
+      INSERT INTO houses (location, bedrooms, bathrooms, description, price_per_night, host_id)
+      VALUES ('${location}', '${bedrooms}', '${bathrooms}', '${description}', '${price_per_night}', '${host_id}')
+      RETURNING *
+    `
+    console.log(queryString)
+    const { rows } = await db.query(queryString)
+    res.json(rows)
+  } catch (err) {
+    console.error(err.message)
+    res.json(err)
+  }
+})
+
 // Define a GET route for fetching a single house
 router.get('/houses/:houseId', async (req, res) => {
   try {
@@ -58,5 +91,4 @@ router.get('/houses', async (req, res) => {
     res.json(err)
   }
 })
-
 export default router

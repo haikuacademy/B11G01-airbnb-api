@@ -2,7 +2,6 @@
 
 import express from 'express'
 
-
 import photosRouter from './routes/photosRoutes.js'
 import authRouter from './routes/authRoutes.js'
 import housesRouter from './routes/housesRoutes.js'
@@ -12,6 +11,7 @@ import reviewsRouter from './routes/reviewsRoutes.js'
 
 const app = express()
 
+app.use(express.json())
 app.use(reviewsRouter)
 app.use(bookingsRouter)
 app.use(authRouter)
@@ -19,8 +19,6 @@ app.use(photosRouter)
 app.use(housesRouter)
 app.use(usersRouter)
 
-
 app.listen(4100, () => {
   console.log('Airbnb API ready on localhost:4100')
 })
-
