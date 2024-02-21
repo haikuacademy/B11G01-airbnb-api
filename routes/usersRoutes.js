@@ -33,19 +33,32 @@ router.get('/users/:userId', async (req, res) => {
   }
 })
 
-router.patch('/users/change-first_name/:userId',
-  async (req, res) => {
-    try {
-      const { rows } = await db.query(`
+router.patch('/users/change-first_name/:userId', async (req, res) => {
+  try {
+    const { rows } = await db.query(`
     UPDATE users
     SET first_name = '${req.body.first_name}'
     WHERE user_id = ${req.params.userId}
     `)
-      res.json(rows)
-    } catch (err) {
-      console.error(err.message)
-      res.json(err.message)
-    }
-  })
+    res.json(rows)
+  } catch (err) {
+    console.error(err.message)
+    res.json(err.message)
+  }
+})
+
+router.patch('/users/change-last_name/:userId', async (req, res) => {
+  try {
+    const { rows } = await db.query(`
+    UPDATE users
+    SET last_name = '${req.body.last_name}'
+    WHERE user_id = ${req.params.userId}
+    `)
+    res.json(rows)
+  } catch (err) {
+    console.error(err.message)
+    res.json(err.message)
+  }
+})
 
 export default router
