@@ -55,7 +55,7 @@ router.get('/houses/:houseId', async (req, res) => {
   }
 })
 
-//Update the /houses route with queries
+// Update the /houses route with query using queryString
 router.get('/houses', async (req, res) => {
   try {
     //query for houses with 1 = 1 to start with true condition
@@ -70,19 +70,18 @@ router.get('/houses', async (req, res) => {
     }
     //query for min rooms
     if (req.query.min_rooms) {
-      queryString += ` AND bedrooms <= '${req.query.min_rooms}'`
+      queryString += ` AND bedrooms >= '${req.query.min_rooms}'`
     }
     //query for search
     if (req.query.search) {
       queryString += ` AND description LIKE '%${req.query.search}%'`
     }
-    //query for sort
-    if (req.query.sort) {
-      queryString += ` ORDER BY ${req.query.sort}`
-    }
-    //query for sort and order by
-    if (req.query.order) {
-      queryString += ` ${req.query.order}`
+    // query for sort and order
+    if (req.query.sort && req.query.order) {
+      queryString += ` ORDER BY ${req.query.sort} ${req.query.order}`
+    } else if (req.query.sort) {
+      // query for sort and make it ASC by default
+      queryString += ` ORDER BY ${req.query.sort} ASC`
     }
     const { rows } = await db.query(queryString)
     res.json(rows)
@@ -91,4 +90,5 @@ router.get('/houses', async (req, res) => {
     res.json(err)
   }
 })
+
 export default router

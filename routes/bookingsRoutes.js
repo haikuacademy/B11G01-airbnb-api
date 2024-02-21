@@ -40,6 +40,34 @@ router.get('/bookings', async (req, res) => {
   }
 })
 
+// POST bookings
+
+router.post('/bookings', async (req, res) => {
+  try {
+    const {
+      user_id,
+      booking_id,
+      house_id,
+      booking_start_date,
+      booking_end_date,
+      price,
+      message_to_host
+    } = req.body
+    console.log(req.body, user_id, booking_id)
+    const queryString = `
+      INSERT INTO bookings (user_id, booking_id, house_id, booking_start_date, booking_end_date, price, message_to_host)
+      VALUES ('${user_id}', '${booking_id}', '${house_id}', '${booking_start_date}', '${booking_end_date}', '${price}', '${message_to_host}')
+      RETURNING *
+    `
+    console.log(queryString)
+    const { rows } = await db.query(queryString)
+    res.json(rows)
+  } catch (err) {
+    console.error(err.message)
+    res.json(err)
+  }
+})
+
 export default router
 
 // Similarly, update the /bookings route so that, by default and without any URL query, it responds with the list of bookings

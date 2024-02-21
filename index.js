@@ -11,7 +11,9 @@ import reviewsRouter from './routes/reviewsRoutes.js'
 
 const app = express()
 
+// Middleware to parse JSON bodies
 app.use(express.json())
+
 app.use(reviewsRouter)
 app.use(bookingsRouter)
 app.use(authRouter)
