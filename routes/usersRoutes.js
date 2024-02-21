@@ -49,7 +49,7 @@ router.patch('/users/:userId', async (req, res) => {
     if (req.body.password) {
       queryArray.push(`password = '${req.body.password}'`)
     }
-    let result = `UPDATE users SET ${queryArray.join()} WHERE user_id = ${req.params.userId}`
+    let result = `UPDATE users SET ${queryArray.join()} WHERE user_id = ${req.params.userId} RETURNING *`
     const { rows } = await db.query(result)
     res.json(rows)
   } catch (err) {
