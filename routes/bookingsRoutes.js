@@ -56,7 +56,7 @@ router.post('/bookings', async (req, res) => {
     console.log(req.body, user_id, booking_id)
     const queryString = `
       INSERT INTO bookings (user_id, booking_id, house_id, booking_start_date, booking_end_date, price, message_to_host)
-      VALUES ('${user_id}', '${booking_id}', '${house_id}', '${booking_start_date}', '${booking_end_date}', '${price}', '${message_to_host}')
+      VALUES (${user_id}, ${booking_id}, ${house_id}, '${booking_start_date}', '${booking_end_date}', ${price}, '${message_to_host}')
       RETURNING *
     `
     console.log(queryString)
