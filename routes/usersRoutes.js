@@ -33,71 +33,25 @@ router.get('/users/:userId', async (req, res) => {
   }
 })
 
-//patch for changing user's first name
-router.patch('/users/change-first_name/:userId', async (req, res) => {
+//patch for changing users
+router.patch('/users/:userId', async (req, res) => {
   try {
-    const { rows } = await db.query(`
-    UPDATE users
-    SET first_name = '${req.body.first_name}'
-    WHERE user_id = ${req.params.userId}
-    `)
-    if (!req.body.first_name) {
-      throw new Error('Please put your first name')
+    let queryArray = []
+    if (req.body.first_name) {
+      queryArray.push(`first_name = '${req.body.first_name}'`)
     }
-    res.json(rows)
-  } catch (err) {
-    console.error(err.message)
-    res.json(err.message)
-  }
-})
-
-//patch for changing user's first name
-router.patch('/users/change-last_name/:userId', async (req, res) => {
-  try {
-    const { rows } = await db.query(`
-    UPDATE users
-    SET last_name = '${req.body.last_name}'
-    WHERE user_id = ${req.params.userId}
-    `)
-    if (!req.body.last_name) {
-      throw new Error('Please put your last name')
+    if (req.body.last_name) {
+      queryArray.push(`last_name = '${req.body.last_name}'`)
     }
-    res.json(rows)
-  } catch (err) {
-    console.error(err.message)
-    res.json(err.message)
-  }
-})
-
-//patch for changing user's email
-router.patch('/users/change-email/:userId', async (req, res) => {
-  try {
-    const { rows } = await db.query(`
-    UPDATE users
-    SET email = '${req.body.email}'
-    WHERE user_id = ${req.params.userId}
-    `)
-    if (!req.body.email) {
-      throw new Error('Please put your email')
+    if (req.body.email) {
+      queryArray.push(`email = '${req.body.email}'`)
     }
-    res.json(rows)
-  } catch (err) {
-    console.error(err.message)
-    res.json(err.message)
-  }
-})
-
-//patch for changing user's password
-router.patch('/users/change-password/:userId', async (req, res) => {
-  try {
-    const { rows } = await db.query(`
-    UPDATE users
-    SET password = '${req.body.password}'
-    WHERE user_id = ${req.params.userId}
-    `)
-    if (!req.body.email) {
-      throw new Error('Please put your password')
+    if (req.body.password) {
+      queryArray.push(`password = '${req.body.password}'`)
     }
+    let result = `UPDATE users SET ${queryArray.join()} WHERE user_id = ${req.params.userId}`
+    console.log(result)
+    const { rows } = await db.query(result)
     res.json(rows)
   } catch (err) {
     console.error(err.message)
