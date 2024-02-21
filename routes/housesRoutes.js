@@ -91,4 +91,20 @@ router.get('/houses', async (req, res) => {
   }
 })
 
+router.patch('/houses/change-description/:house_id', async (req, res) => {
+  console.log('body:',req.body)
+  console.log('------------------------')
+  try {
+    const { rows } = await db.query(`
+      UPDATE houses
+      SET description = '${req.body.description}'
+      WHERE house_id = ${req.params.house_id}
+    `)
+    res.json(rows)
+  } catch (err) {
+    console.error(err.message)
+    res.json(err)
+  }
+})
+
 export default router
