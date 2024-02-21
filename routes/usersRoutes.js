@@ -33,7 +33,7 @@ router.get('/users/:userId', async (req, res) => {
   }
 })
 
-//patch for changing users
+//patch for update users
 router.patch('/users/:userId', async (req, res) => {
   try {
     let queryArray = []
@@ -50,7 +50,6 @@ router.patch('/users/:userId', async (req, res) => {
       queryArray.push(`password = '${req.body.password}'`)
     }
     let result = `UPDATE users SET ${queryArray.join()} WHERE user_id = ${req.params.userId}`
-    console.log(result)
     const { rows } = await db.query(result)
     res.json(rows)
   } catch (err) {
