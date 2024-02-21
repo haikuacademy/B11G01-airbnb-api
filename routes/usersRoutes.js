@@ -33,6 +33,7 @@ router.get('/users/:userId', async (req, res) => {
   }
 })
 
+//patch for changing user's first name
 router.patch('/users/change-first_name/:userId', async (req, res) => {
   try {
     const { rows } = await db.query(`
@@ -47,11 +48,27 @@ router.patch('/users/change-first_name/:userId', async (req, res) => {
   }
 })
 
+//patch for changing user's first name
 router.patch('/users/change-last_name/:userId', async (req, res) => {
   try {
     const { rows } = await db.query(`
     UPDATE users
     SET last_name = '${req.body.last_name}'
+    WHERE user_id = ${req.params.userId}
+    `)
+    res.json(rows)
+  } catch (err) {
+    console.error(err.message)
+    res.json(err.message)
+  }
+})
+
+//patch for changing user's email
+router.patch('/users/change-email/:userId', async (req, res) => {
+  try {
+    const { rows } = await db.query(`
+    UPDATE users
+    SET email = '${req.body.email}'
     WHERE user_id = ${req.params.userId}
     `)
     res.json(rows)
