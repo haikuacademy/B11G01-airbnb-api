@@ -16,14 +16,29 @@ router.post('/signup', async (req, res) => {
     const hashedPassword = await bcrypt.hash(req.body.password, salt)
     console.log(hashedPassword)
     //
-    const { first_name, last_name, email, password } = req.body
+    const { first_name, last_name, email } = req.body
     const queryString = `
       INSERT INTO users (first_name, last_name, email, password)
       VALUES ('${first_name}', '${last_name}', '${email}', '${hashedPassword}')
-      RETURNING *
+      RETURNING user_id, email
     `
     const { rows } = await db.query(queryString)
-    res.json(rows)
+
+    // create jwt token
+    const payload = {
+      user_id: rows[0].user_id,
+      email: rows[0].email
+    }
+
+    const token = jwt.sign(payload, jwtSecret)
+
+    console.log('token', token)
+    console.log('rows[0]', rows[0])
+    console.log('payload', payload)
+
+    res.cookie('jwt', token)
+
+    res.json(rows[0])
   } catch (err) {
     console.error(err.message)
     res.json(err)
@@ -32,15 +47,13 @@ router.post('/signup', async (req, res) => {
 
 //authRoutes for /login
 router.post('/login', async (req, res) => {
-  console.log(jwtSecret)
-  res.send('ok')
-  return
   try {
     const { rows } = await db.query(
       `
     SELECT * FROM users
     WHERE email = '${req.body.email}'
-    `)
+    `
+    )
     let user = rows[0]
     const isPasswordValid = await bcrypt.compare(
       req.body.password,
@@ -59,7 +72,6 @@ router.post('/login', async (req, res) => {
     res.json(err)
   }
 })
-
 
 //authRoutes for /logout
 router.get('/logout', (req, res) => {
