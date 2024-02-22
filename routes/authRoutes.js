@@ -69,13 +69,19 @@ router.post('/login', async (req, res) => {
       user.password
     )
     console.log(isPasswordValid)
-    // if (isPasswordValid) {
-    //   let token = jwt.sign(user, jwtSecret)
-    //   console.log(token)
-    //   res.send('Your credentials are correct')
-    // } else {
-    //   throw new Error('credentials not correct')
-    // }
+    if (isPasswordValid) {
+      // create jwt token
+      const payload = {
+        user_id: rows[0].user_id,
+        email: rows[0].email
+      }
+      const token = jwt.sign(payload, jwtSecret)
+      res.cookie('jwt', token)
+      console.log(token)
+      res.send('Your credentials are correct')
+    } else {
+      throw new Error('credentials not correct')
+    }
   } catch (err) {
     console.error(err.message)
     res.json(err)
