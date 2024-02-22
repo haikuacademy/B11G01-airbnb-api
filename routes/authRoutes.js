@@ -14,7 +14,7 @@ router.post('/signup', async (req, res) => {
     const result = await db.query(
       `SELECT * FROM users WHERE email = '${req.body.email}'`
     )
-    if (!result.rows) {
+    if (result.rows.length === 0) {
       //1.Create a salt
       const salt = await bcrypt.genSalt(10)
       console.log(result.rows)
