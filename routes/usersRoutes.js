@@ -1,15 +1,24 @@
 import { Router } from 'express'
 const router = Router()
 import db from '../db.js' // import the database connection
+import jwt from 'jsonwebtoken'
+import { jwtSecret } from '../secrets.js'
 
 // Define a GET route for fetching the list of users
 router.get('/users', async (req, res) => {
   try {
+    const jwtCookie = req.cookies.jwt
+    const verified = jwt.verify(jwtCookie, jwtSecret)
+
+    console.log(verified)
+
     const { rows } = await db.query('SELECT * FROM users') // query the database
-    console.log(rows)
     res.json(rows) // respond with the data
   } catch (err) {
-    console.error(err.message)
+    if (err.message === 'jwt must be provided') {
+      res.json({ error: 'user not logged in' })
+      return
+    }
     res.json(err)
   }
 })
@@ -54,7 +63,7 @@ router.patch('/users/:userId', async (req, res) => {
     res.json(rows)
   } catch (err) {
     console.error(err.message)
-    res.json({error: 'Please insert a valid data'})
+    res.json({ error: 'Please insert a valid data' })
   }
 })
 

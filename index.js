@@ -8,11 +8,14 @@ import housesRouter from './routes/housesRoutes.js'
 import usersRouter from './routes/usersRoutes.js'
 import bookingsRouter from './routes/bookingsRoutes.js'
 import reviewsRouter from './routes/reviewsRoutes.js'
+import cookieParser from 'cookie-parser'
+import { jwtSecret } from './secrets.js'
 
 const app = express()
 
 // Middleware to parse JSON bodies
 app.use(express.json())
+app.use(cookieParser())
 
 app.use(reviewsRouter)
 app.use(bookingsRouter)

@@ -1,18 +1,44 @@
 import { Router } from 'express'
 const router = Router()
 import db from '../db.js' // import the database connection
+import bcrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken'
+import { jwtSecret } from '../secrets.js'
 
 //authRoutes for /signup
+
 router.post('/signup', async (req, res) => {
   try {
-    const { first_name, last_name, email, password } = req.body
+    //1.Create a salt
+    const salt = await bcrypt.genSalt(10)
+
+    //2. Hash the password
+    const hashedPassword = await bcrypt.hash(req.body.password, salt)
+    console.log(hashedPassword)
+    //
+    const { first_name, last_name, email } = req.body
     const queryString = `
       INSERT INTO users (first_name, last_name, email, password)
-      VALUES ('${first_name}', '${last_name}', '${email}', '${password}')
-      RETURNING *
+      VALUES ('${first_name}', '${last_name}', '${email}', '${hashedPassword}')
+      RETURNING user_id, email
     `
     const { rows } = await db.query(queryString)
-    res.json(rows)
+
+    // create jwt token
+    const payload = {
+      user_id: rows[0].user_id,
+      email: rows[0].email
+    }
+
+    const token = jwt.sign(payload, jwtSecret)
+
+    console.log('token', token)
+    console.log('rows[0]', rows[0])
+    console.log('payload', payload)
+
+    res.cookie('jwt', token)
+
+    res.json(rows[0])
   } catch (err) {
     console.error(err.message)
     res.json(err)
@@ -21,24 +47,26 @@ router.post('/signup', async (req, res) => {
 
 //authRoutes for /login
 router.post('/login', async (req, res) => {
-  // let logInMessage = 'This is from login'
-  // res.send(logInMessage)
   try {
-    const { email, password } = req.body
-    // Query the database to find a user with the provided email and password
     const { rows } = await db.query(
       `
     SELECT * FROM users
-    WHERE email = $1 AND password = $2
-    `,
-      [email, password]
+    WHERE email = '${req.body.email}'
+    `
     )
-    if (rows.length > 0) {
-      res.json(rows)
-    } else {
-      // If no user found with provided email and password
-      res.json({ error: 'Invalid email or password' })
-    }
+    let user = rows[0]
+    const isPasswordValid = await bcrypt.compare(
+      req.body.password,
+      user.password
+    )
+    console.log(isPasswordValid)
+    // if (isPasswordValid) {
+    //   let token = jwt.sign(user, jwtSecret)
+    //   console.log(token)
+    //   res.send('Your credentials are correct')
+    // } else {
+    //   throw new Error('credentials not correct')
+    // }
   } catch (err) {
     console.error(err.message)
     res.json(err)
