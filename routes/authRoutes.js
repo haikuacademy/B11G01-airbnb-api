@@ -1,14 +1,23 @@
 import { Router } from 'express'
 const router = Router()
 import db from '../db.js' // import the database connection
+import bcrypt from 'bcryptjs'
 
 //authRoutes for /signup
+
 router.post('/signup', async (req, res) => {
   try {
+    //1.Create a salt
+    const salt = await bcrypt.genSalt(10)
+
+    //2. Hash the password
+    const hashedPassword = await bcrypt.hash(req.body.password, salt)
+    console.log(hashedPassword)
+    //
     const { first_name, last_name, email, password } = req.body
     const queryString = `
       INSERT INTO users (first_name, last_name, email, password)
-      VALUES ('${first_name}', '${last_name}', '${email}', '${password}')
+      VALUES ('${first_name}', '${last_name}', '${email}', '${hashedPassword}')
       RETURNING *
     `
     const { rows } = await db.query(queryString)
