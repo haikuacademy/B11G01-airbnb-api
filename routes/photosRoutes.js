@@ -85,19 +85,20 @@ router.get('/photos/:photoId', async (req, res) => {
   }
 })
 
+// DELETE bookings
 
-//create hardcode for /photos/11
-// router.get('/photos/11', async (req, res) => {
-//   try {
-//     const { rows } = await db.query(
-//       'SELECT * FROM pictures WHERE picture_id = 11'
-//     ) // query the database
-//     console.log(rows)
-//     res.json(rows) // respond with the data
-//   } catch (err) {
-//     console.error(err.message)
-//     res.json(err)
-//   }
-// })
+router.delete('/photos/:picture_id', async (req, res) => {
+  try {
+    const { rowCount } = await db.query(`
+    DELETE FROM pictures WHERE picture_id = ${req.params.picture_id}`)
+    if (!rowCount) {
+      throw new Error('Delete Failed')
+    }
+    res.json(rowCount)
+  } catch (err) {
+    console.error(err)
+    res.json({ error: 'Please insert a valid photo' })
+  }
+})
 
 export default router
