@@ -40,7 +40,6 @@ router.get('/reviews/:reviewId', async (req, res) => {
     res.json(err.message)
   }
 })
-export default router
 
 // Define a GET route for fetching the list of reviews
 router.get('/reviews', async (req, res) => {
@@ -62,3 +61,21 @@ router.get('/reviews', async (req, res) => {
     res.json(err)
   }
 })
+
+//DELETE reviews
+router.delete('/reviews/:reviewId', async (req, res) => {
+  try {
+    const { rowCount } = await db.query(`
+    DELETE FROM reviews WHERE review_id = ${req.params.reviewId}
+    `)
+    if (!rowCount) {
+      throw new Error('Delete Failed')
+    }
+    res.json(rowCount)
+  } catch (err) {
+    console.error(err)
+    res.json({ error: 'Please insert a valid data' })
+  }
+})
+
+export default router

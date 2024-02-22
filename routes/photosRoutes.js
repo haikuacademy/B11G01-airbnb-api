@@ -7,19 +7,22 @@ import db from '../db.js' // import the database connection
 
 router.patch('/photos/:picture_id', async (req, res) => {
   try {
+    if (!req.body.pic_url) {
+      throw new Error('Parameter pic_url is required')
+    }
     const { rows } = await db.query(`
-    UPDATE pictures
-    SET pic_url = '${req.body.pic_url}'
-    WHERE picture_id = ${req.params.picture_id}
-  `)
+      UPDATE pictures
+      SET pic_url = '${req.body.pic_url}'
+      WHERE picture_id = ${req.params.picture_id}
+    `)
     res.json(rows)
   } catch (err) {
-    console.error(err.message)
-    res.json(err)
+    res.json({ error: err.message })
   }
 })
 
 // Post photos
+
 router.post('/photos', async (req, res) => {
   try {
     const { picture_id, pic_url, house_id } = req.body
@@ -84,8 +87,6 @@ router.get('/photos/:photoId', async (req, res) => {
     res.json(err.message)
   }
 })
-
-// DELETE bookings
 
 router.delete('/photos/:picture_id', async (req, res) => {
   try {
