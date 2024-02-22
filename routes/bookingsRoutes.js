@@ -68,6 +68,20 @@ router.post('/bookings', async (req, res) => {
   }
 })
 
+// DELETE bookings
+router.delete('/bookings/:bookingId', async (req, res) => {
+  try {
+    const { rowCount } = await db.query(`
+    DELETE FROM bookings WHERE booking_id = ${req.params.bookingId}`)
+    if (!rowCount) {
+      throw new Error('Delete Failed')
+    }
+    res.json(rowCount)
+  } catch (err) {
+    console.error(err)
+    res.json({ error: 'Please insert a valid data' })
+  }
+})
 export default router
 
 // Similarly, update the /bookings route so that, by default and without any URL query, it responds with the list of bookings
