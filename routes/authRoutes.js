@@ -30,29 +30,31 @@ router.post('/signup', async (req, res) => {
 
 //authRoutes for /login
 router.post('/login', async (req, res) => {
-  // let logInMessage = 'This is from login'
-  // res.send(logInMessage)
   try {
-    const { email, password } = req.body
-    // Query the database to find a user with the provided email and password
     const { rows } = await db.query(
       `
     SELECT * FROM users
-    WHERE email = $1 AND password = $2
-    `,
-      [email, password]
+    WHERE email = '${req.body.email}'
+    `)
+    let user = rows[0]
+    const isPasswordValid = await bcrypt.compare(
+      req.body.password,
+      user.password
     )
-    if (rows.length > 0) {
-      res.json(rows)
-    } else {
-      // If no user found with provided email and password
-      res.json({ error: 'Invalid email or password' })
-    }
+    console.log(isPasswordValid)
+    // if (isPasswordValid) {
+    //   let token = jwt.sign(user, jwtSecret)
+    //   console.log(token)
+    //   res.send('Your credentials are correct')
+    // } else {
+    //   throw new Error('credentials not correct')
+    // }
   } catch (err) {
     console.error(err.message)
     res.json(err)
   }
 })
+
 
 //authRoutes for /logout
 router.get('/logout', (req, res) => {
