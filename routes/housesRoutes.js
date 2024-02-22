@@ -1,6 +1,8 @@
 import { Router } from 'express'
 const router = Router()
 import db from '../db.js' // import the database connection
+import jwt from 'jsonwebtoken'
+import { jwtSecret } from '../secrets.js'
 
 // Houses
 // Let's continue with the "houses" route.
@@ -10,25 +12,32 @@ import db from '../db.js' // import the database connection
 // Make the route respond with the row of data inserted into the database.
 // Test, using Postman, that a POST request to http://localhost:4100/houses with a payload, results in the correct insertion of such data in the database.
 
+//Update the POST /houses route so that it first decodes the incoming jwt from the cookies
 router.post('/houses', async (req, res) => {
   try {
-    const {
-      location,
-      bedrooms,
-      bathrooms,
-      description,
-      price_per_night,
-      host_id
-    } = req.body
-    console.log(req.body, location, bedrooms)
-    const queryString = `
+    const jwtCookie = req.cookies.jwt
+    const verified = jwt.verify(jwtCookie, jwtSecret)
+    if (verified) {
+      const {
+        location,
+        bedrooms,
+        bathrooms,
+        description,
+        price_per_night,
+        host_id
+      } = req.body
+      console.log(req.body, location, bedrooms)
+      const queryString = `
       INSERT INTO houses (location, bedrooms, bathrooms, description, price_per_night, host_id)
       VALUES ('${location}', ${bedrooms}, ${bathrooms}, '${description}', ${price_per_night}, ${host_id})
       RETURNING *
     `
-    console.log(queryString)
-    const { rows } = await db.query(queryString)
-    res.json(rows)
+      console.log(queryString)
+      const { rows } = await db.query(queryString)
+      res.json(rows)
+    } else {
+      throw new Error('Invalid authentication token')
+    }
   } catch (err) {
     console.error(err.message)
     res.json(err)
@@ -118,7 +127,7 @@ router.patch('/houses/:house_id', async (req, res) => {
     res.json(r.rows)
   } catch (err) {
     console.error(err.message)
-    res.json({error: 'Please insert valid data'})
+    res.json({ error: 'Please insert valid data' })
   }
 })
 
