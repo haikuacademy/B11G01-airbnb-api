@@ -91,19 +91,34 @@ router.get('/houses', async (req, res) => {
   }
 })
 
-router.patch('/houses/change-description/:house_id', async (req, res) => {
-  console.log('body:',req.body)
-  console.log('------------------------')
+// PATCH for houses
+router.patch('/houses/:house_id', async (req, res) => {
   try {
-    const { rows } = await db.query(`
-      UPDATE houses
-      SET description = '${req.body.description}'
-      WHERE house_id = ${req.params.house_id}
-    `)
-    res.json(rows)
+    const { location, bedrooms, bathrooms, description, price_per_night } =
+      req.body
+    let queryArray = []
+    if (location) {
+      queryArray.push(`location = '${location}'`)
+    }
+    if (bedrooms) {
+      queryArray.push(`bedrooms = ${bedrooms}`)
+    }
+    if (bathrooms) {
+      queryArray.push(`bathrooms = ${bathrooms}`)
+    }
+    if (description) {
+      queryArray.push(`description = '${description}'`)
+    }
+    if (price_per_night) {
+      queryArray.push(`price_per_night = ${price_per_night}`)
+    }
+    let result = `UPDATE houses SET ${queryArray.join()} WHERE house_id = ${req.params.house_id} RETURNING *`
+    console.log(result)
+    const r = await db.query(result)
+    res.json(r.rows)
   } catch (err) {
     console.error(err.message)
-    res.json(err)
+    res.json({error: 'Please insert valid data'})
   }
 })
 
