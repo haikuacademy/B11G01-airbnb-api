@@ -118,7 +118,22 @@ router.patch('/houses/:house_id', async (req, res) => {
     res.json(r.rows)
   } catch (err) {
     console.error(err.message)
-    res.json({error: 'Please insert valid data'})
+    res.json({ error: 'Please insert valid data' })
+  }
+})
+
+// DELETE houses
+router.delete('/houses/:houseId', async (req, res) => {
+  try {
+    const { rowCount } = await db.query(`
+    DELETE FROM houses WHERE house_id = ${req.params.houseId}`)
+    if (!rowCount) {
+      throw new Error('Delete Failed')
+    }
+    res.json(rowCount)
+  } catch (err) {
+    console.error(err)
+    res.json({ error: 'Please insert a valid data' })
   }
 })
 
