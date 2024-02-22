@@ -1,9 +1,10 @@
 import { Router } from 'express'
-const router = Router()
 import db from '../db.js' // import the database connection
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { jwtSecret } from '../secrets.js'
+
+const router = Router()
 
 //authRoutes for /signup
 
