@@ -14,6 +14,7 @@ const app = express()
 
 // Middleware to parse JSON bodies
 app.use(express.json())
+app.use(cookieParser())
 
 app.use(reviewsRouter)
 app.use(bookingsRouter)
@@ -21,7 +22,6 @@ app.use(authRouter)
 app.use(photosRouter)
 app.use(housesRouter)
 app.use(usersRouter)
-app.use(cookieParser())
 
 app.listen(4100, () => {
   console.log('Airbnb API ready on localhost:4100')
