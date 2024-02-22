@@ -10,36 +10,44 @@ const router = Router()
 
 router.post('/signup', async (req, res) => {
   try {
-    //1.Create a salt
-    const salt = await bcrypt.genSalt(10)
-
-    //2. Hash the password
-    const hashedPassword = await bcrypt.hash(req.body.password, salt)
-    console.log(hashedPassword)
-    //
-    const { first_name, last_name, email } = req.body
-    const queryString = `
+    //check that a user with the same email address doesn't already exist
+    const result = await db.query(
+      `SELECT * FROM users WHERE email = '${req.body.email}'`
+    )
+    if (result.rows.length === 0) {
+      //1.Create a salt
+      const salt = await bcrypt.genSalt(10)
+      console.log(result.rows)
+      //2. Hash the password
+      const hashedPassword = await bcrypt.hash(req.body.password, salt)
+      console.log('hashedPassword', hashedPassword)
+      //
+      const { first_name, last_name, email } = req.body
+      const queryString = `
       INSERT INTO users (first_name, last_name, email, password)
       VALUES ('${first_name}', '${last_name}', '${email}', '${hashedPassword}')
       RETURNING user_id, email
     `
-    const { rows } = await db.query(queryString)
+      const { rows } = await db.query(queryString)
 
-    // create jwt token
-    const payload = {
-      user_id: rows[0].user_id,
-      email: rows[0].email
+      // create jwt token
+      const payload = {
+        user_id: rows[0].user_id,
+        email: rows[0].email
+      }
+
+      const token = jwt.sign(payload, jwtSecret)
+
+      console.log('token', token)
+      console.log('rows[0]', rows[0])
+      console.log('payload', payload)
+
+      res.cookie('jwt', token)
+
+      res.json(rows[0])
+    } else {
+      throw new Error('user with this email already exists')
     }
-
-    const token = jwt.sign(payload, jwtSecret)
-
-    console.log('token', token)
-    console.log('rows[0]', rows[0])
-    console.log('payload', payload)
-
-    res.cookie('jwt', token)
-
-    res.json(rows[0])
   } catch (err) {
     console.error(err.message)
     res.json(err)
