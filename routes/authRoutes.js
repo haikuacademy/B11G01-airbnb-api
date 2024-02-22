@@ -3,7 +3,7 @@ const router = Router()
 import db from '../db.js' // import the database connection
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-import jwtSecret from '../secrets.js'
+import { jwtSecret } from '../secrets.js'
 
 //authRoutes for /signup
 
@@ -32,6 +32,9 @@ router.post('/signup', async (req, res) => {
 
 //authRoutes for /login
 router.post('/login', async (req, res) => {
+  console.log(jwtSecret)
+  res.send('ok')
+  return
   try {
     const { rows } = await db.query(
       `

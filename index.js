@@ -9,7 +9,7 @@ import usersRouter from './routes/usersRoutes.js'
 import bookingsRouter from './routes/bookingsRoutes.js'
 import reviewsRouter from './routes/reviewsRoutes.js'
 import cookieParser from 'cookie-parser'
-import jwtSecret from './secrets.js'
+import { jwtSecret } from './secrets.js'
 
 const app = express()
 
@@ -23,7 +23,6 @@ app.use(authRouter)
 app.use(photosRouter)
 app.use(housesRouter)
 app.use(usersRouter)
-app.use(jwtSecret)
 
 app.listen(4100, () => {
   console.log('Airbnb API ready on localhost:4100')
