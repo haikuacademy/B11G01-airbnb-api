@@ -45,37 +45,41 @@ router.get('/bookings', async (req, res) => {
 // POST bookings
 
 router.post('/bookings', async (req, res) => {
-  try {
-    const token = req.cookies.jwt
-    if (!token) {
-      throw new Error('No token provided')
-    }
-    const decodedToken = jwt.verify(token, jwtSecret)
-    if (!decodedToken) {
-      throw new Error('Invalid authentication token')
-    } else {
-      const {
+  const token = req.cookies.jwt
+  const {
         user_id,
-        booking_id,
         house_id,
         booking_start_date,
         booking_end_date,
         price,
         message_to_host
       } = req.body
-      console.log(req.body, user_id, booking_id)
-      const queryString = `
-      INSERT INTO bookings (user_id, house_id, booking_start_date, booking_end_date, price, message_to_host)
-      VALUES (${decodedToken.user_id}, ${house_id}, '${booking_start_date}', '${booking_end_date}', ${price}, '${message_to_host}')
-      RETURNING *
+  let decoded
+  try {
+    decodedToken = jwt.verify(token, jwtSecret)
+  } catch (e) {
+    res.json({ error: 'Invalid authentication token' })
+    return
+  }
+  try {
+    // check if the user_id has the booking_id
+    const queryString = `
+    SELECT * FROM bookings WHERE user_id =
+    ${decoded.user_id} AND booking_id = ${booking_id}
     `
-      console.log(queryString)
-      const { rows } = await db.query(queryString)
-      res.json(rows)
+    const result = await db.query(queryString)
+    if (result.rowCount === 0) {
+      throw new Error('Not authorized')
     }
+    const queryString2 = `
+      INSERT INTO bookings (user_id, house_id, booking_start_date, booking_end_date, price, message_to_host)
+      VALUES (${user_id}, ${house_id}, '${booking_start_date}', '${booking_end_date}', ${price}, '${message_to_host}')
+      RETURNING *
+    ` 
+      const { rows } = await db.query(queryString2)
+      res.json(rows)
   } catch (err) {
-    console.error(err.message)
-    res.json(err)
+    res.json({ error: err.message })
   }
 })
 
