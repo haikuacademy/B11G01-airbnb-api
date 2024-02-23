@@ -20,7 +20,6 @@ router.post('/houses', async (req, res) => {
       throw new Error('No token provided')
     }
     const decodedToken = jwt.verify(token, jwtSecret)
-    console.log(decodedToken)
     if (!decodedToken) {
       throw new Error('Invalid authentication token')
     } else {
@@ -32,13 +31,11 @@ router.post('/houses', async (req, res) => {
         price_per_night,
         host_id
       } = req.body
-      console.log(req.body, location, bedrooms)
       const queryString = `
       INSERT INTO houses (location, bedrooms, bathrooms, description, price_per_night, host_id)
       VALUES ('${location}', ${bedrooms}, ${bathrooms}, '${description}', ${price_per_night}, ${decodedToken.user_id})
       RETURNING *
     `
-      console.log(queryString)
       const { rows } = await db.query(queryString)
       res.json(rows)
     }
