@@ -2,6 +2,8 @@
 import { Router } from 'express'
 const router = Router()
 import db from '../db.js' // import the database connection
+import jwt from 'jsonwebtoken'
+import { jwtSecret } from '../secrets.js'
 
 // Patch photos
 
@@ -24,19 +26,38 @@ router.patch('/photos/:picture_id', async (req, res) => {
 // Post photos
 
 router.post('/photos', async (req, res) => {
+  const token = req.cookies.jwt
+  const { picture_id, pic_url, house_id } = req.body
+  let decoded
+
   try {
-    const { picture_id, pic_url, house_id } = req.body
+    decoded = jwt.verify(token, jwtSecret)
+  } catch (e) {
+    res.json({ error: 'Invalid auth token' })
+    return
+  }
+
+  try {
+    // check if the user user_id has the house house_id
     const queryString = `
-    INSERT INTO pictures (picture_id, pic_url, house_id)
-    VALUES ('${picture_id}', '${pic_url}', '${house_id}')
-    RETURNING *
+      SELECT * FROM houses WHERE host_id = ${decoded.user_id} AND house_id = ${house_id}
     `
-    console.log(queryString)
-    const { rows } = await db.query(queryString)
+
+    const result = await db.query(queryString)
+
+    if (result.rowCount === 0) {
+      throw new Error('not authorized')
+    }
+
+    const queryString2 = `
+      INSERT INTO pictures (pic_url, house_id)
+      VALUES ('${pic_url}', '${house_id}')
+      RETURNING *
+    `
+    const { rows } = await db.query(queryString2)
     res.json(rows)
   } catch (err) {
-    console.error(err.message)
-    res.json(err)
+    res.json({ error: err.message })
   }
 })
 
