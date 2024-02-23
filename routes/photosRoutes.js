@@ -9,8 +9,28 @@ import { jwtSecret } from '../secrets.js'
 // Patch photos
 
 router.patch('/photos/:picture_id', async (req, res) => {
+  const token = req.cookies.jwt
+  const { pic_url, house_id } = req.body
+  let decoded
+
   try {
-    if (!req.body.pic_url) {
+    decoded = jwt.verify(token, jwtSecret)
+  } catch (e) {
+    res.json({ error: 'Invalid auth token' })
+    return
+  }
+  try {
+    // check if the user user_id (decoded.user_id) is the host of the house specified by house_id.
+    // check if the user user_id has the house house_id
+    const queryString = `
+      SELECT * FROM houses WHERE host_id = ${decoded.user_id} AND house_id = ${house_id}
+    `
+    const result = await db.query(queryString)
+    if (result.rowCount === 0) {
+      throw new Error('not authorized')
+    }
+
+    if (!pic_url) {
       throw new Error('Parameter pic_url is required')
     }
     const { rows } = await db.query(`
@@ -28,7 +48,7 @@ router.patch('/photos/:picture_id', async (req, res) => {
 
 router.post('/photos', async (req, res) => {
   const token = req.cookies.jwt
-  const {pic_url, house_id } = req.body
+  const { pic_url, house_id } = req.body
   let decoded
 
   try {
