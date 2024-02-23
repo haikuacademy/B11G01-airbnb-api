@@ -78,7 +78,7 @@ router.post('/login', async (req, res) => {
       const token = jwt.sign(payload, jwtSecret)
       res.cookie('jwt', token)
       console.log(token)
-      console.log(user);
+      console.log(user)
       res.send(`Hi ${user.first_name}, you're now logged in`)
     } else {
       throw new Error('credentials not correct')
@@ -91,8 +91,8 @@ router.post('/login', async (req, res) => {
 
 //authRoutes for /logout
 router.get('/logout', (req, res) => {
-  let logOutMessage = 'This is from logout'
-  res.send(logOutMessage)
+  res.clearCookie('jwt')
+  res.send('You are logged out')
 })
 
 // Export the router
