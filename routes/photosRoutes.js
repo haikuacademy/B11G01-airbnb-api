@@ -1,4 +1,5 @@
 // import router
+
 import { Router } from 'express'
 const router = Router()
 import db from '../db.js' // import the database connection
@@ -27,7 +28,7 @@ router.patch('/photos/:picture_id', async (req, res) => {
 
 router.post('/photos', async (req, res) => {
   const token = req.cookies.jwt
-  const { picture_id, pic_url, house_id } = req.body
+  const {pic_url, house_id } = req.body
   let decoded
 
   try {
@@ -74,6 +75,7 @@ router.get('/photos', async (req, res) => {
   }
 })
 // create photos routes that require house_id
+
 router.get('/photos', async (req, res) => {
   try {
     if (req.query.house) {

@@ -31,6 +31,7 @@ router.post('/signup', async (req, res) => {
       const { rows } = await db.query(queryString)
 
       // create jwt token
+      
       const payload = {
         user_id: rows[0].user_id,
         email: rows[0].email
