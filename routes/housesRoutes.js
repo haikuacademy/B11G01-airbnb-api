@@ -102,9 +102,35 @@ router.get('/houses', async (req, res) => {
 
 // PATCH for houses
 router.patch('/houses/:house_id', async (req, res) => {
+  const token = req.cookies.jwt
+  const {
+    location,
+    bedrooms,
+    bathrooms,
+    description,
+    price_per_night,
+    host_id
+  } = req.body
+  let decoded
   try {
-    const { location, bedrooms, bathrooms, description, price_per_night } =
-      req.body
+    decoded = jwt.verify(token, jwtSecret)
+  } catch (e) {
+    res.json({ error: 'Invalid authentication token' })
+    return
+  }
+
+  try {
+    // check if the user user_id (decoded.user_id) is the host of the house specified by house_id.
+    //use user_id from token (from the request cookies) while house_id from the request params
+    const queryString = `
+      SELECT * FROM houses WHERE host_id = ${decoded.user_id} AND house_id = ${req.params.house_id}
+    `
+
+    const output = await db.query(queryString)
+    if (output.rowCount === 0) {
+      throw new Error('not authorized')
+    }
+
     let queryArray = []
     if (location) {
       queryArray.push(`location = '${location}'`)
@@ -122,7 +148,6 @@ router.patch('/houses/:house_id', async (req, res) => {
       queryArray.push(`price_per_night = ${price_per_night}`)
     }
     let result = `UPDATE houses SET ${queryArray.join()} WHERE house_id = ${req.params.house_id} RETURNING *`
-    console.log(result)
     const r = await db.query(result)
     res.json(r.rows)
   } catch (err) {
