@@ -1,6 +1,8 @@
 import { Router } from 'express'
 const router = Router()
 import db from '../db.js' // import the database connection
+import jwt from 'jsonwebtoken'
+import { jwtSecret } from '../secrets.js'
 
 // params for GET bookings/1
 
@@ -44,24 +46,33 @@ router.get('/bookings', async (req, res) => {
 
 router.post('/bookings', async (req, res) => {
   try {
-    const {
-      user_id,
-      booking_id,
-      house_id,
-      booking_start_date,
-      booking_end_date,
-      price,
-      message_to_host
-    } = req.body
-    console.log(req.body, user_id, booking_id)
-    const queryString = `
-      INSERT INTO bookings (user_id, booking_id, house_id, booking_start_date, booking_end_date, price, message_to_host)
-      VALUES (${user_id}, ${booking_id}, ${house_id}, '${booking_start_date}', '${booking_end_date}', ${price}, '${message_to_host}')
+    const token = req.cookies.jwt
+    if (!token) {
+      throw new Error('No token provided')
+    }
+    const decodedToken = jwt.verify(token, jwtSecret)
+    if (!decodedToken) {
+      throw new Error('Invalid authentication token')
+    } else {
+      const {
+        user_id,
+        booking_id,
+        house_id,
+        booking_start_date,
+        booking_end_date,
+        price,
+        message_to_host
+      } = req.body
+      console.log(req.body, user_id, booking_id)
+      const queryString = `
+      INSERT INTO bookings (user_id, house_id, booking_start_date, booking_end_date, price, message_to_host)
+      VALUES (${decodedToken.user_id}, ${house_id}, '${booking_start_date}', '${booking_end_date}', ${price}, '${message_to_host}')
       RETURNING *
     `
-    console.log(queryString)
-    const { rows } = await db.query(queryString)
-    res.json(rows)
+      console.log(queryString)
+      const { rows } = await db.query(queryString)
+      res.json(rows)
+    }
   } catch (err) {
     console.error(err.message)
     res.json(err)
