@@ -14,31 +14,30 @@ import { jwtSecret } from '../secrets.js'
 
 //Update the POST /houses route so that it first decodes the incoming jwt from the cookies
 router.post('/houses', async (req, res) => {
+  const token = req.cookies.jwt
+  let decoded
   try {
-    const token = req.cookies.jwt
-    if (!token) {
-      throw new Error('No token provided')
-    }
-    const decodedToken = jwt.verify(token, jwtSecret)
-    if (!decodedToken) {
-      throw new Error('Invalid authentication token')
-    } else {
-      const {
-        location,
-        bedrooms,
-        bathrooms,
-        description,
-        price_per_night,
-        host_id
-      } = req.body
-      const queryString = `
+    decoded = jwt.verify(token, jwtSecret)
+  } catch (e) {
+    res.json({ error: 'Invalid authentication token' })
+    return
+  }
+  try {
+    const {
+      location,
+      bedrooms,
+      bathrooms,
+      description,
+      price_per_night,
+      host_id
+    } = req.body
+    const queryString = `
       INSERT INTO houses (location, bedrooms, bathrooms, description, price_per_night, host_id)
-      VALUES ('${location}', ${bedrooms}, ${bathrooms}, '${description}', ${price_per_night}, ${decodedToken.user_id})
+      VALUES ('${location}', ${bedrooms}, ${bathrooms}, '${description}', ${price_per_night}, ${decoded.user_id})
       RETURNING *
     `
-      const { rows } = await db.query(queryString)
-      res.json(rows)
-    }
+    const { rows } = await db.query(queryString)
+    res.json(rows)
   } catch (err) {
     console.error(err.message)
     res.json(err)
