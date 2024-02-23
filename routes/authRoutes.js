@@ -78,7 +78,8 @@ router.post('/login', async (req, res) => {
       const token = jwt.sign(payload, jwtSecret)
       res.cookie('jwt', token)
       console.log(token)
-      res.send('Your credentials are correct')
+      console.log(user);
+      res.send(`Hi ${user.first_name}, you're now logged in`)
     } else {
       throw new Error('credentials not correct')
     }
