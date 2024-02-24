@@ -103,14 +103,8 @@ router.get('/houses', async (req, res) => {
 // PATCH for houses
 router.patch('/houses/:house_id', async (req, res) => {
   const token = req.cookies.jwt
-  const {
-    location,
-    bedrooms,
-    bathrooms,
-    description,
-    price_per_night,
-    host_id
-  } = req.body
+  const { location, bedrooms, bathrooms, description, price_per_night } =
+    req.body
   let decoded
   try {
     decoded = jwt.verify(token, jwtSecret)
@@ -153,6 +147,42 @@ router.patch('/houses/:house_id', async (req, res) => {
   } catch (err) {
     console.error(err.message)
     res.json({ error: 'Please insert valid data' })
+  }
+})
+
+//DELETE with auth
+router.delete('/houses/:houseId', async (req, res) => {
+  const token = req.cookies.jwt
+  let decoded
+  try {
+    decoded = jwt.verify(token, jwtSecret)
+  } catch (e) {
+    res.json({ error: 'Invalid authentication token' })
+    return
+  }
+
+  try {
+    // check if the user user_id (decoded.user_id) is the host of the house specified by house_id.
+    //use user_id from token (from the request cookies) while house_id from the request params
+    const queryString = `
+      SELECT * FROM houses WHERE host_id = ${decoded.user_id} AND house_id = ${req.params.houseId}
+    `
+
+    const result = await db.query(queryString)
+    if (result.rowCount === 0) {
+      throw new Error('not authorized')
+    }
+
+    const { rowCount } = await db.query(`
+    DELETE FROM houses WHERE house_id = ${req.params.houseId}
+    `)
+    if (!rowCount) {
+      throw new Error('Delete Failed')
+    }
+    res.json(rowCount)
+  } catch (err) {
+    console.error(err)
+    res.json({ error: 'Please insert a valid data' })
   }
 })
 
