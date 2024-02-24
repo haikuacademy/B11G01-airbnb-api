@@ -28,8 +28,7 @@ router.post('/houses', async (req, res) => {
       bedrooms,
       bathrooms,
       description,
-      price_per_night,
-      host_id
+      price_per_night
     } = req.body
     const queryString = `
       INSERT INTO houses (location, bedrooms, bathrooms, description, price_per_night, host_id)
@@ -64,7 +63,7 @@ router.get('/houses/:houseId', async (req, res) => {
   }
 })
 
-// Update the /houses route with query using queryString
+// GET /houses route with query using queryString
 router.get('/houses', async (req, res) => {
   try {
     //query for houses with 1 = 1 to start with true condition

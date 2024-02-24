@@ -4,38 +4,27 @@ import db from '../db.js' // import the database connection
 import jwt from 'jsonwebtoken'
 import { jwtSecret } from '../secrets.js'
 
-// Define a GET route for fetching the list of users
-router.get('/users', async (req, res) => {
-  try {
-    const jwtCookie = req.cookies.jwt
-    const verified = jwt.verify(jwtCookie, jwtSecret)
-
-    console.log(verified)
-
-    const { rows } = await db.query('SELECT * FROM users') // query the database
-    res.json(rows) // respond with the data
-  } catch (err) {
-    if (err.message === 'jwt must be provided') {
-      res.json({ error: 'user not logged in' })
-      return
-    }
-    res.json(err)
-  }
-})
-
+// GET / users /:user_id route with Auth
 router.get('/users/:userId', async (req, res) => {
+  //if the user is not logged in, it throws the error 'Invalid authentication token'
+  const token = req.cookies.jwt
+  let decoded
   try {
-    let userId = Number(req.params.userId)
-    if (!userId) {
-      throw new Error('Please insert a number')
+    decoded = jwt.verify(token, jwtSecret)
+  } catch (e) {
+    res.json({ error: 'Invalid authentication token' })
+    return
+  }
+  // checks if the requesting user id is the same user id in the request params.
+  try {
+    const queryString = `
+      SELECT * FROM users WHERE user_id = ${decoded.user_id} AND user_id = ${req.params.userId}
+    `
+    const result = await db.query(queryString)
+    if (result.rowCount === 0) {
+      throw new Error('You are not authorized')
     }
-    const { rows } = await db.query(
-      `SELECT * FROM users WHERE user_id = ${req.params.userId}`
-    )
-    if (rows.length === 0) {
-      throw new Error('User not found')
-    }
-    res.json(rows)
+    res.json(result.rows[0])
   } catch (err) {
     console.error(err.message)
     res.json(err.message)
@@ -44,7 +33,25 @@ router.get('/users/:userId', async (req, res) => {
 
 //patch for update users
 router.patch('/users/:userId', async (req, res) => {
+  //if the user is not logged in, it throws the error 'Invalid authentication token'
+  const token = req.cookies.jwt
+  let decoded
   try {
+    decoded = jwt.verify(token, jwtSecret)
+  } catch (e) {
+    res.json({ error: 'Invalid authentication token' })
+    return
+  }
+  // checks if the requesting user id is the same user id in the request params.
+  try {
+    const queryString = `
+      SELECT * FROM users WHERE user_id = ${decoded.user_id} AND user_id = ${req.params.userId}
+    `
+    const result = await db.query(queryString)
+    if (result.rowCount === 0) {
+      throw new Error('You are not authorized')
+    }
+
     let queryArray = []
     if (req.body.first_name) {
       queryArray.push(`first_name = '${req.body.first_name}'`)
@@ -58,7 +65,7 @@ router.patch('/users/:userId', async (req, res) => {
     if (req.body.password) {
       queryArray.push(`password = '${req.body.password}'`)
     }
-    let result = `UPDATE users SET ${queryArray.join()} WHERE user_id = ${req.params.userId} RETURNING *`
+    const output = `UPDATE users SET ${queryArray.join()} WHERE user_id = ${req.params.userId} RETURNING *`
     const { rows } = await db.query(result)
     res.json(rows)
   } catch (err) {
