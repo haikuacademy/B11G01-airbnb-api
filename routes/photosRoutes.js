@@ -50,9 +50,16 @@ router.post('/photos', async (req, res) => {
   const token = req.cookies.jwt
   const { pic_url, house_id } = req.body
   let decoded
-
+  //check if the clent enters the correct info in req.body
+  if (!house_id) {
+    return res.json({ error: 'house_is is required' })
+  }
+  if (!pic_url) {
+    return res.json({ error: 'pic_url is required' })
+  }
+  //check if the client has logged in
   try {
-    decoded = jwt.verify(token, jwtSecret)
+    decoded = jwt.decode(token, jwtSecret)
   } catch (e) {
     res.json({ error: 'Invalid auth token' })
     return
@@ -63,11 +70,14 @@ router.post('/photos', async (req, res) => {
     const queryString = `
       SELECT * FROM houses WHERE host_id = ${decoded.user_id} AND house_id = ${house_id}
     `
+    console.log('verification passed', queryString)
 
     const result = await db.query(queryString)
 
     if (result.rowCount === 0) {
-      throw new Error('not authorized')
+      throw new Error(
+        `we have not found a house with house_id ${house_id} for user user_id ${decoded.user_id}`
+      )
     }
 
     const queryString2 = `
@@ -82,7 +92,7 @@ router.post('/photos', async (req, res) => {
   }
 })
 
-// // create photos routes
+// get photos routes
 
 router.get('/photos', async (req, res) => {
   try {
@@ -94,7 +104,8 @@ router.get('/photos', async (req, res) => {
     res.json(err)
   }
 })
-// create photos routes that require house_id
+
+// get photos routes that require house_id
 
 router.get('/photos', async (req, res) => {
   try {
@@ -131,18 +142,46 @@ router.get('/photos/:photoId', async (req, res) => {
   }
 })
 
-//create hardcode for /photos/11
-// router.get('/photos/11', async (req, res) => {
-//   try {
-//     const { rows } = await db.query(
-//       'SELECT * FROM pictures WHERE picture_id = 11'
-//     ) // query the database
-//     console.log(rows)
-//     res.json(rows) // respond with the data
-//   } catch (err) {
-//     console.error(err.message)
-//     res.json(err)
-//   }
-// })
+// DELETE photos
+router.delete('/photos/:photoId', async (req, res) => {
+  //check if the user is logged in
+  const token = req.cookies.jwt
+  let decoded
+  try {
+    decoded = jwt.verify(token, jwtSecret)
+  } catch (e) {
+    res.json({ error: 'Invalid authentication token' })
+    return
+  }
+
+  try {
+    // check if the photo exists
+    let queryPhotos = `
+    SELECT * FROM pictures WHERE picture_id = ${req.params.photoId} 
+    `
+    const { rows } = await db.query(queryPhotos)
+    if (rows.length === 0) {
+      throw new Error('photo does not exist')
+    }
+    console.log(rows[0])
+    // check if that photo belongs to the user
+    // the house id comes with the picture id in pictures table
+    let getHouseId = rows[0].house_id
+
+    // then we can delete
+    const deletePhotoQuery = `
+    DELETE FROM pictures WHERE picture_id = ${req.params.photoId} AND house_id = ${getHouseId} RETURNING *`
+    console.log(deletePhotoQuery);
+    const { rowCount } = await db.query(
+    deletePhotoQuery)
+    if (rowCount === 0) {
+      throw new Error('User is not authorized to delete this photo')
+    }
+    res.json(rows[0])
+  } catch (err) {
+    console.error(err)
+    res.json({ error: err })
+  }
+})
 
 export default router
