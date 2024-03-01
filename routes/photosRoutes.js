@@ -21,7 +21,7 @@ router.patch('/photos/:picture_id', async (req, res) => {
   }
   try {
     // check if the user user_id (decoded.user_id) is the host of the house specified by house_id.
-    // check if the user user_id has the house house_id
+    // check if the user decoded.user_id is the same as the host_id that has the house house_id
     const queryString = `
       SELECT * FROM houses WHERE host_id = ${decoded.user_id} AND house_id = ${house_id}
     `
@@ -70,8 +70,6 @@ router.post('/photos', async (req, res) => {
     const queryString = `
       SELECT * FROM houses WHERE host_id = ${decoded.user_id} AND house_id = ${house_id}
     `
-    console.log('verification passed', queryString)
-
     const result = await db.query(queryString)
 
     if (result.rowCount === 0) {
@@ -144,6 +142,11 @@ router.get('/photos/:photoId', async (req, res) => {
 
 // DELETE photos
 router.delete('/photos/:photoId', async (req, res) => {
+  // check if there's photoId params
+  if (!req.params.photoId) {
+    return res.json({ error: 'Please enter photoId' })
+  }
+
   //check if the user is logged in
   const token = req.cookies.jwt
   let decoded
@@ -154,33 +157,50 @@ router.delete('/photos/:photoId', async (req, res) => {
     return
   }
 
+  // check if picture id exists in pictures table
+  let result
   try {
-    // check if the photo exists
-    let queryPhotos = `
-    SELECT * FROM pictures WHERE picture_id = ${req.params.photoId} 
-    `
-    const { rows } = await db.query(queryPhotos)
-    if (rows.length === 0) {
-      throw new Error('photo does not exist')
+    result = await db.query(`
+      SELECT * FROM pictures WHERE picture_id = ${req.params.photoId} 
+    `)
+    if (result.rows.length === 0) {
+      throw new Error('picture does not exist')
     }
-    console.log(rows[0])
-    // check if that photo belongs to the user
-    // the house id comes with the picture id in pictures table
-    let getHouseId = rows[0].house_id
+  } catch (e) {
+    res.json({ error: `Photo id ${req.params.photoId} doesn't exist.` })
+    return
+  }
 
-    // then we can delete
-    const deletePhotoQuery = `
-    DELETE FROM pictures WHERE picture_id = ${req.params.photoId} AND house_id = ${getHouseId} RETURNING *`
-    console.log(deletePhotoQuery);
-    const { rowCount } = await db.query(
-    deletePhotoQuery)
-    if (rowCount === 0) {
-      throw new Error('User is not authorized to delete this photo')
+  let houseId
+  let getHostId
+  try {
+    houseId = result.rows[0].house_id
+    // select * from houses WHERE house_id = {rows[0].house_id}
+    // this query gives us the user_id (host_id) that owns the house_id
+    getHostId = `
+SELECT * FROM houses WHERE house_id = ${houseId}`
+    result = await db.query(getHostId)
+  } catch (e) {
+    res.json({ error: 'You are not authorize to delete this photo.' })
+    return
+  }
+  // when host id = user id from the token, it means that the photo belongs to that user and can be deleted
+  let hostId
+  let deletePhotoQuery
+  try {
+    hostId = result.rows[0].host_id
+    if (hostId === decoded.user_id) {
+      deletePhotoQuery = `
+      DELETE FROM pictures WHERE picture_id = ${req.params.photoId} AND house_id = ${houseId} RETURNING *`
+      const { rowCount } = await db.query(deletePhotoQuery)
+      if (rowCount === 0) {
+        throw new Error('User is not authorized to delete this photo')
+      }
     }
-    res.json(rows[0])
+    res.json(result.rows[0])
   } catch (err) {
     console.error(err)
-    res.json({ error: err })
+    res.json({ error: err.message })
   }
 })
 
