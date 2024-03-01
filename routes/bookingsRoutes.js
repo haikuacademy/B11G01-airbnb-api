@@ -75,8 +75,9 @@ router.post('/bookings', async (req, res) => {
   } = req.body
   let decoded
   try {
-    decodedToken = jwt.verify(token, jwtSecret)
+    decoded = jwt.decode(token, jwtSecret)
   } catch (e) {
+    // console.log(e)
     res.json({ error: 'Invalid authentication token' })
     return
   }
@@ -95,16 +96,36 @@ router.post('/bookings', async (req, res) => {
 
 // DELETE bookings
 router.delete('/bookings/:bookingId', async (req, res) => {
+  //check if the user is logged in
+  const token = req.cookies.jwt
+  let decoded
   try {
-    const { rowCount } = await db.query(`
-    DELETE FROM bookings WHERE booking_id = ${req.params.bookingId}`)
-    if (!rowCount) {
-      throw new Error('Delete Failed')
+    decoded = jwt.verify(token, jwtSecret)
+  } catch (e) {
+    res.json({ error: 'Invalid authentication token' })
+    return
+  }
+
+  try {
+    // first do a SELECT to see if the booking exists
+    let queryBookings = `
+    SELECT * FROM bookings WHERE user_id = ${decoded.user_id} ORDER BY booking_start_date DESC
+    `
+    const { rows } = await db.query(queryBookings)
+    if (rows.length === 0) {
+      throw new Error('booking does not exist')
     }
-    res.json(rowCount)
+
+    // then I can delete
+    const { rowCount } = await db.query(`
+    DELETE FROM bookings WHERE booking_id = ${req.params.bookingId} AND user_id = ${decoded.user_id} RETURNING *`)
+    if (rowCount === 0) {
+      throw new Error('User is not authorized to delete this booking')
+    }
+    res.json(rows[0])
   } catch (err) {
     console.error(err)
-    res.json({ error: 'Please insert a valid data' })
+    res.json({ error: 'booking does not exist' })
   }
 })
 
