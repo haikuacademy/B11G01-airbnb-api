@@ -81,21 +81,12 @@ router.post('/bookings', async (req, res) => {
     return
   }
   try {
-    // check if the user_id has the booking_id
     const queryString = `
-    SELECT * FROM bookings WHERE user_id =
-    ${decoded.user_id} AND booking_id = ${booking_id}
-    `
-    const result = await db.query(queryString)
-    if (result.rowCount === 0) {
-      throw new Error('Not authorized')
-    }
-    const queryString2 = `
       INSERT INTO bookings (user_id, house_id, booking_start_date, booking_end_date, price, message_to_host)
       VALUES (${decoded.user_id}, ${house_id}, '${booking_start_date}', '${booking_end_date}', ${price}, '${message_to_host}')
       RETURNING *
     `
-    const { rows } = await db.query(queryString2)
+    const { rows } = await db.query(queryString)
     res.json(rows)
   } catch (err) {
     res.json({ error: err.message })
