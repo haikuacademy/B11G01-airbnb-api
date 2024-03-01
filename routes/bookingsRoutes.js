@@ -63,7 +63,7 @@ router.get('/bookings', async (req, res) => {
 })
 
 // POST bookings
-//still need to recheck
+//got error invalid token
 router.post('/bookings', async (req, res) => {
   const token = req.cookies.jwt
   const {
