@@ -11,15 +11,9 @@ import { jwtSecret } from '../secrets.js'
 router.patch('/photos/:picture_id', async (req, res) => {
   const token = req.cookies.jwt
   const { pic_url, house_id } = req.body
-  let decoded
 
   try {
-    decoded = jwt.verify(token, jwtSecret)
-  } catch (e) {
-    res.json({ error: 'Invalid auth token' })
-    return
-  }
-  try {
+    const decoded = jwt.verify(token, jwtSecret)
     // check if the user user_id (decoded.user_id) is the host of the house specified by house_id.
     // check if the user decoded.user_id is the same as the host_id that has the house house_id
     const queryString = `

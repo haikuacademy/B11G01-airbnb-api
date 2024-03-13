@@ -30,7 +30,7 @@ router.get('/bookings/:bookingId', async (req, res) => {
     res.json(rows)
   } catch (err) {
     console.error(err.message)
-    res.json(err.message)
+    res.json({error: err.message})
   }
 })
 
@@ -38,27 +38,19 @@ router.get('/bookings/:bookingId', async (req, res) => {
 router.get('/bookings', async (req, res) => {
   //check if the user is logged in
   const token = req.cookies.jwt
-  let decoded
+  
   try {
-    decoded = jwt.verify(token, jwtSecret)
-  } catch (e) {
-    res.json({ error: 'Invalid authentication token' })
-    return
-  }
-
-  try {
+    const decoded = jwt.verify(token, jwtSecret)
     //only returns the bookings made by the requesting user
     let queryBookings = `
     SELECT * FROM bookings WHERE user_id = ${decoded.user_id} ORDER BY booking_start_date DESC
     `
     const { rows } = await db.query(queryBookings)
-    if (rows.length === 0) {
-      throw new Error('not authorized')
-    }
+
     res.json(rows)
   } catch (err) {
     console.error(err.message)
-    res.json(err)
+    res.json({error: err.message})
   }
 })
 
